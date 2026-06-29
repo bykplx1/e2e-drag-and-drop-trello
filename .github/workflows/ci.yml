@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Boot Focalboard
+        run: docker compose up -d
+
+      - name: Wait for Focalboard readiness
+        # The 7.11.4 image has no curl/wget, so we poll the host-published port
+        # directly. The compose healthcheck (bash /dev/tcp) is a second gate.
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8088/login || true)
+            if [ "$code" = "200" ]; then echo "Focalboard ready"; exit 0; fi
+            echo "waiting for Focalboard ($i): got '$code'"
+            sleep 2
+          done
+          echo "Focalboard never became ready"; docker compose logs; exit 1
+
+      - name: Run smoke test (chromium)
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
