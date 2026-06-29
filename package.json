@@ -1,0 +1,16 @@
+{
+  "name": "e2e-drag-and-drop-trello",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright + TypeScript E2E suite against a hermetic Focalboard kanban target.",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test --project=chromium",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.4.0"
+  }
+}

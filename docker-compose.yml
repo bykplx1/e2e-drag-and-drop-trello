@@ -9,8 +9,15 @@ services:
       - "8088:8000"   # host 8088 -> container 8000 (standalone server default)
     restart: unless-stopped
     healthcheck:
-      # Server returns 200 on the login page once ready.
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/login"]
+      # The 7.11.4 image ships neither curl nor wget, so the original
+      # curl-based check could never reach `healthy`. bash IS present and
+      # supports /dev/tcp, so probe the login endpoint over a raw TCP socket
+      # and assert the server answers 200.
+      test:
+        - CMD
+        - bash
+        - -c
+        - 'exec 3<>/dev/tcp/localhost/8000 && printf "GET /login HTTP/1.0\r\n\r\n" >&3 && head -1 <&3 | grep -q "200 OK"'
       interval: 3s
       timeout: 3s
       retries: 30
