@@ -1,0 +1,17 @@
+# Hermetic Focalboard target for the E2E suite.
+# Standalone personal-server image; no external services, no secrets.
+# Pinned tag so local and CI boot the same build.
+services:
+  focalboard:
+    image: mattermost/focalboard:7.11.4
+    container_name: focalboard-e2e
+    ports:
+      - "8088:8000"   # host 8088 -> container 8000 (standalone server default)
+    restart: unless-stopped
+    healthcheck:
+      # Server returns 200 on the login page once ready.
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/login"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
