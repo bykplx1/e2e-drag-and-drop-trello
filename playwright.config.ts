@@ -20,6 +20,9 @@ export default defineConfig({
     baseURL: 'http://localhost:8088',
     trace: 'on-first-retry',
   },
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+  },
   projects: [
     {
       name: 'setup',
@@ -29,16 +32,25 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], storageState: STORAGE_STATE },
       dependencies: ['setup'],
+      testIgnore: /visual\.spec\.ts/,
     },
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'], storageState: STORAGE_STATE },
       dependencies: ['setup'],
+      testIgnore: /visual\.spec\.ts/,
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'], storageState: STORAGE_STATE },
       dependencies: ['setup'],
+      testIgnore: /visual\.spec\.ts/,
+    },
+    {
+      name: 'visual',
+      use: { ...devices['Desktop Chrome'], storageState: STORAGE_STATE },
+      dependencies: ['setup'],
+      testMatch: /visual\.spec\.ts/,
     },
   ],
 });
