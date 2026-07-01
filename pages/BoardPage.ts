@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
+import { DragHelper } from './DragHelper';
 
 /**
  * Page object for a Focalboard board (issue #4).
@@ -150,5 +151,20 @@ export class BoardPage {
   /** Ordered titles of the cards rendered in the column at `columnIndex`. */
   async cardTitlesInColumn(columnIndex: number): Promise<string[]> {
     return this.columnAt(columnIndex).locator('.octo-titletext').allInnerTexts();
+  }
+
+  /**
+   * Moves the card titled `cardTitle` from `sourceColumnIndex` to
+   * `destColumnIndex` (both 0-based) using DragHelper's synthetic HTML5
+   * DragEvent sequence — the only mechanism that works against react-dnd's
+   * HTML5 backend (see docs/spike-findings.md §4).
+   */
+  async moveCard(cardTitle: string, sourceColumnIndex: number, destColumnIndex: number): Promise<void> {
+    const sourceColumn = this.columnAt(sourceColumnIndex);
+    const destColumn = this.columnAt(destColumnIndex);
+    const card = sourceColumn.locator('.KanbanCard').filter({ has: this.page.locator('.octo-titletext', { hasText: cardTitle }) }).first();
+
+    const dragHelper = new DragHelper(this.page);
+    await dragHelper.dragCardToColumn(card, destColumn);
   }
 }
