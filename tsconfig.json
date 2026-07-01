@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["playwright.config.ts", "auth/**/*.ts", "tests/**/*.ts"]
+  "include": ["playwright.config.ts", "auth/**/*.ts", "tests/**/*.ts", "helpers/**/*.ts"]
 }
