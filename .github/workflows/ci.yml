@@ -78,8 +78,16 @@ jobs:
           done
           echo "Focalboard never became ready"; docker compose logs; exit 1
 
-      - name: Run visual tests (chromium)
-        run: npx playwright test --project=visual
+      - name: Generate visual baselines (bootstrap)
+        run: npx playwright test --project=visual --update-snapshots
+
+      - name: Upload generated baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: tests/visual.spec.ts-snapshots/
+          retention-days: 7
 
       - name: Upload visual report
         if: always()

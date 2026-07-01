@@ -11,7 +11,9 @@ const MASKS_SHARED = [
 
 test('empty-board snapshot', async ({ page }) => {
   const boardPage = new BoardPage(page);
-  await boardPage.createBoard(`Visual Empty ${Date.now()}`);
+  // Stable board name: the title renders into the snapshot, so a timestamped
+  // name would differ between the baseline and comparison runs and never match.
+  await boardPage.createBoard('Visual Empty Board');
 
   const masks = MASKS_SHARED.map((sel) => page.locator(sel));
   await expect(page).toHaveScreenshot('empty-board.png', {
@@ -22,7 +24,8 @@ test('empty-board snapshot', async ({ page }) => {
 
 test('populated-board snapshot', async ({ page }) => {
   const boardPage = new BoardPage(page);
-  await boardPage.createBoard(`Visual Populated ${Date.now()}`);
+  // Stable board name (see empty-board test) so the rendered title is deterministic.
+  await boardPage.createBoard('Visual Populated Board');
 
   await boardPage.addColumn();
   await boardPage.addCard(0, 'Task Alpha');
