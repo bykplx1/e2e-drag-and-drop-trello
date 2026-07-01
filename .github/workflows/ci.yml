@@ -26,8 +26,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright ${{ matrix.browser }}
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Install Playwright browsers
+        # The shared `setup` (auth) project has no browser configured, so it
+        # runs on the default chromium and writes a portable storageState that
+        # every engine reuses. Each matrix job therefore needs chromium (for
+        # setup) plus its own engine. `install` de-dupes when they're equal.
+        run: npx playwright install --with-deps chromium ${{ matrix.browser }}
 
       - name: Boot Focalboard
         run: docker compose up -d
