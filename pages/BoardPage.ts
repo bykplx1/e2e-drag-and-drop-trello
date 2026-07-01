@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { DragHelper } from './DragHelper';
+import { CardModal } from './CardModal';
 
 /**
  * Page object for a Focalboard board (issue #4).
@@ -151,6 +152,18 @@ export class BoardPage {
   /** Ordered titles of the cards rendered in the column at `columnIndex`. */
   async cardTitlesInColumn(columnIndex: number): Promise<string[]> {
     return this.columnAt(columnIndex).locator('.octo-titletext').allInnerTexts();
+  }
+
+  /**
+   * Archives (deletes) the card titled `cardTitle` from the active board view.
+   *
+   * Delegates to CardModal which hovers the card to reveal the ⋯ actions menu,
+   * then drives the "Delete" action (Focalboard's term for archive/removal).
+   * After the call the card is no longer present in `.BoardComponent`.
+   */
+  async archiveCard(cardTitle: string): Promise<void> {
+    const cardModal = new CardModal(this.page);
+    await cardModal.archiveFromBoard(this.boardContainer, cardTitle);
   }
 
   /**
